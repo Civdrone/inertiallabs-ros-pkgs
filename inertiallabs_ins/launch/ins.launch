@@ -1,11 +1,11 @@
 <launch>
   <node pkg="inertiallabs_ins" type="il_ins" name="INS" output="screen">
    <param name="serial_port" type="string" value="/dev/ttyUSB0" />
-   <param name="serial_baud" type="int" value="460800" />
+   <param name="serial_baud" type="int" value="2000000" />
    <!-- setting the output type and frequency -->
    <!-- TODO:- set the command line input -->
-   <param name="output_type" type="int" value="0"/>
+   <param name="output_type" type="int" value="149"/>
    <!--setting the publishing rate-->
-   <param name="publish_rate" type="int" value="50"/>
+   <param name="publish_rate" type="int" value="2"/>
   </node>
 </launch>
