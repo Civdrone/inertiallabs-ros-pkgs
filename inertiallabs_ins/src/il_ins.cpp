@@ -5,6 +5,7 @@
 #include<stdlib.h>
 
 #include <ros/ros.h>
+#include <sensor_msgs/Imu.h>
 
 //Inertial Labs source header
 #include "ILDriver.h"
@@ -35,13 +36,14 @@ void publish_data(Context* context)
 	static int seq=0;
 	seq++;
 
-	ros::Time timestamp = ros::Time::now();
+	//ros::Time timestamp = ros::Time::now();
 
 	inertiallabs_msgs::sensor_data msg_sensor_data;
 	inertiallabs_msgs::ins_data msg_ins_data;
 	inertiallabs_msgs::gps_data msg_gps_data;
 	inertiallabs_msgs::gnss_data msg_gnss_data;
 	inertiallabs_msgs::marine_data msg_marine_data;
+	// sensor_msgs::Imu msg_standard_imu_data;
 
 	// Lock, copy and unlock
 	{
@@ -70,43 +72,58 @@ void publish_data(Context* context)
 		{
 			msg_marine_data = g_msg_marine_data;
 		}
+		// if(context->publishers[5].getNumSubscribers() > 0)
+		// {
+		// 	msg_standard_imu_data.header = g_msg_ins_data.header;
+		// 	msg_standard_imu_data.orientation = g_msg_ins_data.OriQuat;
+		// 	msg_standard_imu_data.angular_velocity = g_msg_sensor_data.Gyro;
+		// 	msg_standard_imu_data.linear_acceleration = g_msg_sensor_data.Accel;
+		// }
 	}
 
 	// Publish
 	if (context->publishers[0].getNumSubscribers() > 0)
 	{
 		msg_sensor_data.header.seq = seq;
-		msg_sensor_data.header.stamp = timestamp;
+		//msg_sensor_data.header.stamp = timestamp;
 		context->publishers[0].publish(msg_sensor_data);
 	}
 
 	if (context->publishers[1].getNumSubscribers() > 0)
 	{
 		msg_ins_data.header.seq = seq;
-		msg_ins_data.header.stamp = timestamp;
+		//msg_ins_data.header.stamp = timestamp;
 		context->publishers[1].publish(msg_ins_data);
 	}
 
 	if (context->publishers[2].getNumSubscribers() > 0)
 	{
 		msg_gps_data.header.seq = seq;
-		msg_gps_data.header.stamp = timestamp;
+		//msg_gps_data.header.stamp = timestamp;
 		context->publishers[2].publish(msg_gps_data);
 	}
 
 	if (context->publishers[3].getNumSubscribers() > 0)
 	{
 		msg_gnss_data.header.seq = seq;
-		msg_gnss_data.header.stamp = timestamp;
+		//msg_gnss_data.header.stamp = timestamp;
 		context->publishers[3].publish(msg_gnss_data);
 	}
 
 	if (context->publishers[4].getNumSubscribers() > 0)
 	{
 		msg_marine_data.header.seq = seq;
-		msg_marine_data.header.stamp = timestamp;
+		//msg_marine_data.header.stamp = timestamp;
 		context->publishers[4].publish(msg_marine_data);
 	}
+
+	// if (context->publishers[5].getNumSubscribers() > 0)
+	// {
+	// 	msg_marine_data.header.seq = seq;
+	// 	//msg_marine_data.header.stamp = timestamp;
+	// 	context->publishers[5].publish(msg_standard_imu_data);
+	// }
+	
 }
 
 void save_data(IL::INSDataStruct *data, void* contextPtr)
@@ -114,13 +131,16 @@ void save_data(IL::INSDataStruct *data, void* contextPtr)
 	Context * context = reinterpret_cast<Context*>(contextPtr);
 
 	std::lock_guard<std::mutex> lock(data_mutex);
+
+	ros::Time timestamp = ros::Time::now();
 	
 	if (context->publishers[0].getNumSubscribers() > 0)
 	{
 		g_msg_sensor_data.header.frame_id = context->imu_frame_id;
+		g_msg_sensor_data.header.stamp = timestamp;
 		g_msg_sensor_data.Mag.x = data->Mag[0];
-		g_msg_sensor_data.Mag.y = data->Mag[0];
-		g_msg_sensor_data.Mag.z = data->Mag[0];
+		g_msg_sensor_data.Mag.y = data->Mag[1];
+		g_msg_sensor_data.Mag.z = data->Mag[2];
 		g_msg_sensor_data.Accel.x = data->Acc[0];
 		g_msg_sensor_data.Accel.y = data->Acc[1];
 		g_msg_sensor_data.Accel.z = data->Acc[2];
@@ -136,6 +156,7 @@ void save_data(IL::INSDataStruct *data, void* contextPtr)
 	if (context->publishers[1].getNumSubscribers() > 0)
 	{
 		g_msg_ins_data.header.frame_id = context->imu_frame_id;
+		g_msg_ins_data.header.stamp = timestamp;
 		g_msg_ins_data.YPR.x = data->Heading;
 		g_msg_ins_data.YPR.y = data->Pitch;
 		g_msg_ins_data.YPR.z = data->Roll;
@@ -159,6 +180,7 @@ void save_data(IL::INSDataStruct *data, void* contextPtr)
 	if (context->publishers[2].getNumSubscribers() > 0)
 	{
 		g_msg_gps_data.header.frame_id = context->imu_frame_id;
+		g_msg_gps_data.header.stamp = timestamp;
 		g_msg_gps_data.LLH.x = data->LatGNSS;
 		g_msg_gps_data.LLH.y = data->LonGNSS;
 		g_msg_gps_data.LLH.z = data->AltGNSS;
@@ -170,6 +192,7 @@ void save_data(IL::INSDataStruct *data, void* contextPtr)
 	if (context->publishers[3].getNumSubscribers() > 0)
 	{
 		g_msg_gnss_data.header.frame_id = context->imu_frame_id;
+		g_msg_gnss_data.header.stamp = timestamp;
 		g_msg_gnss_data.GNSS_info_1 = data->GNSSInfo1;
 		g_msg_gnss_data.GNSS_info_2 = data->GNSSInfo2;
 		g_msg_gnss_data.Number_Sat = data->SVsol;
@@ -189,6 +212,7 @@ void save_data(IL::INSDataStruct *data, void* contextPtr)
 	if (context->publishers[4].getNumSubscribers() > 0)
 	{
 		g_msg_marine_data.header.frame_id = context->imu_frame_id;
+		g_msg_marine_data.header.stamp = timestamp;
 		g_msg_marine_data.Heave = data->Heave;
 		g_msg_marine_data.Surge = data->Surge;
 		g_msg_marine_data.Sway = data->Sway;
@@ -233,6 +257,7 @@ int main(int argc, char** argv)
 	context.publishers[2] = np.advertise<inertiallabs_msgs::gps_data>("/Inertial_Labs/gps_data", 1);
 	context.publishers[3] = np.advertise<inertiallabs_msgs::gnss_data>("/Inertial_Labs/gnss_data", 1);
 	context.publishers[4] = np.advertise<inertiallabs_msgs::marine_data>("/Inertial_Labs/marine_data", 1);
+	context.publishers[5] = np.advertise<sensor_msgs::Imu>("/Inertial_Labs/standard_imu_data", 1);
 
 
 	ROS_INFO("connecting to INS at URL %s, ins_output_format %d, publish_rate %d", port.c_str(), ins_output_type, publish_rate);
