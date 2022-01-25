@@ -8,6 +8,7 @@
   ],
   "files.associations": {
     "bitset": "cpp",
-    "string_view": "cpp"
+    "string_view": "cpp",
+    "cmath": "cpp"
   }
 }

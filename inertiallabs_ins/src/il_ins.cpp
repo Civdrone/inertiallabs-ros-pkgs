@@ -17,10 +17,12 @@
 #include <inertiallabs_msgs/gnss_data.h>
 #include <inertiallabs_msgs/marine_data.h>
 
+
+#define G  9.80665
 //Publishers
 
 struct Context {
-	ros::Publisher publishers[5];
+	ros::Publisher publishers[6];
 	std::string imu_frame_id;
 };
 
@@ -43,7 +45,7 @@ void publish_data(Context* context)
 	inertiallabs_msgs::gps_data msg_gps_data;
 	inertiallabs_msgs::gnss_data msg_gnss_data;
 	inertiallabs_msgs::marine_data msg_marine_data;
-	// sensor_msgs::Imu msg_standard_imu_data;
+	sensor_msgs::Imu msg_standard_imu_data;
 
 	// Lock, copy and unlock
 	{
@@ -72,13 +74,16 @@ void publish_data(Context* context)
 		{
 			msg_marine_data = g_msg_marine_data;
 		}
-		// if(context->publishers[5].getNumSubscribers() > 0)
-		// {
-		// 	msg_standard_imu_data.header = g_msg_ins_data.header;
-		// 	msg_standard_imu_data.orientation = g_msg_ins_data.OriQuat;
-		// 	msg_standard_imu_data.angular_velocity = g_msg_sensor_data.Gyro;
-		// 	msg_standard_imu_data.linear_acceleration = g_msg_sensor_data.Accel;
-		// }
+		
+		if(context->publishers[5].getNumSubscribers() > 0)
+		{
+			msg_standard_imu_data.header = g_msg_ins_data.header;
+			msg_standard_imu_data.orientation = g_msg_ins_data.OriQuat;
+			msg_standard_imu_data.angular_velocity = g_msg_sensor_data.Gyro;
+			msg_standard_imu_data.linear_acceleration.x = g_msg_sensor_data.Accel.x * G;
+			msg_standard_imu_data.linear_acceleration.y = g_msg_sensor_data.Accel.y * G;
+			msg_standard_imu_data.linear_acceleration.z = g_msg_sensor_data.Accel.z * G;
+		}
 	}
 
 	// Publish
@@ -117,12 +122,12 @@ void publish_data(Context* context)
 		context->publishers[4].publish(msg_marine_data);
 	}
 
-	// if (context->publishers[5].getNumSubscribers() > 0)
-	// {
-	// 	msg_marine_data.header.seq = seq;
-	// 	//msg_marine_data.header.stamp = timestamp;
-	// 	context->publishers[5].publish(msg_standard_imu_data);
-	// }
+	if (context->publishers[5].getNumSubscribers() > 0)
+	{
+		msg_marine_data.header.seq = seq;
+		//msg_marine_data.header.stamp = timestamp;
+		context->publishers[5].publish(msg_standard_imu_data);
+	}
 	
 }
 
@@ -134,7 +139,7 @@ void save_data(IL::INSDataStruct *data, void* contextPtr)
 
 	ros::Time timestamp = ros::Time::now();
 	
-	if (context->publishers[0].getNumSubscribers() > 0)
+	if (context->publishers[0].getNumSubscribers() > 0 || context->publishers[5].getNumSubscribers() > 0)
 	{
 		g_msg_sensor_data.header.frame_id = context->imu_frame_id;
 		g_msg_sensor_data.header.stamp = timestamp;
@@ -153,7 +158,7 @@ void save_data(IL::INSDataStruct *data, void* contextPtr)
 		g_msg_sensor_data.Barometric_Height = data->pBar;
 	}
 
-	if (context->publishers[1].getNumSubscribers() > 0)
+	if (context->publishers[1].getNumSubscribers() > 0 || context->publishers[5].getNumSubscribers() > 0 )
 	{
 		g_msg_ins_data.header.frame_id = context->imu_frame_id;
 		g_msg_ins_data.header.stamp = timestamp;
