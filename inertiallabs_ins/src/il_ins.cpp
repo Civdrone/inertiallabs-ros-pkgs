@@ -83,6 +83,37 @@ void publish_data(Context* context)
 			msg_standard_imu_data.linear_acceleration.x = g_msg_sensor_data.Accel.x * G;
 			msg_standard_imu_data.linear_acceleration.y = g_msg_sensor_data.Accel.y * G;
 			msg_standard_imu_data.linear_acceleration.z = g_msg_sensor_data.Accel.z * G;
+			
+			msg_standard_imu_data.orientation_covariance[0] = 8.512e-6
+			msg_standard_imu_data.orientation_covariance[1] = 0.0
+			msg_standard_imu_data.orientation_covariance[2] = 0.0
+			msg_standard_imu_data.orientation_covariance[3] = 0.0
+			msg_standard_imu_data.orientation_covariance[4] = 1.0263e-8
+			msg_standard_imu_data.orientation_covariance[5] = 0.0
+			msg_standard_imu_data.orientation_covariance[6] = 0.0
+			msg_standard_imu_data.orientation_covariance[7] = 0.0
+			msg_standard_imu_data.orientation_covariance[8] = 1.89219e-8
+			
+			msg_standard_imu_data.angular_velocity_covariance[0] = 0.0007009
+			msg_standard_imu_data.angular_velocity_covariance[1] = 0.0
+			msg_standard_imu_data.angular_velocity_covariance[2] = 0.0
+			msg_standard_imu_data.angular_velocity_covariance[3] = 0.0
+			msg_standard_imu_data.angular_velocity_covariance[4] = 0.00186523
+			msg_standard_imu_data.angular_velocity_covariance[5] = 0.0
+			msg_standard_imu_data.angular_velocity_covariance[6] = 0.0
+			msg_standard_imu_data.angular_velocity_covariance[7] = 0.0
+			msg_standard_imu_data.angular_velocity_covariance[8] = 0.00092446
+
+			msg_standard_imu_data.linear_acceleration_covariance[0] = 1.1499e-6
+			msg_standard_imu_data.linear_acceleration_covariance[1] = 0.0
+			msg_standard_imu_data.linear_acceleration_covariance[2] = 0.0
+			msg_standard_imu_data.linear_acceleration_covariance[3] = 0.0
+			msg_standard_imu_data.linear_acceleration_covariance[4] = 1.0626e-6
+			msg_standard_imu_data.linear_acceleration_covariance[5] = 0.0
+			msg_standard_imu_data.linear_acceleration_covariance[6] = 0.0
+			msg_standard_imu_data.linear_acceleration_covariance[7] = 0.0
+			msg_standard_imu_data.linear_acceleration_covariance[8] = 9.4396e-6
+			
 		}
 	}
 
