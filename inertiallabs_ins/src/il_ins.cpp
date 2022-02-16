@@ -78,7 +78,7 @@ void publish_data(Context *context)
 		if (context->publishers[5].getNumSubscribers() > 0)
 		{
 			msg_standard_imu_data.header = g_msg_ins_data.header;
-			msg_standard_imu_data.header.frame_id = "base_link"
+			msg_standard_imu_data.header.frame_id = "base_link";
 			msg_standard_imu_data.orientation = g_msg_ins_data.OriQuat;
 			msg_standard_imu_data.angular_velocity = g_msg_sensor_data.Gyro;
 			msg_standard_imu_data.linear_acceleration.x = g_msg_sensor_data.Accel.x * G;
