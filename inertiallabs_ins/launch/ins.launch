@@ -1,5 +1,7 @@
 <launch>
-  <node pkg="inertiallabs_ins" type="il_ins" name="INS" output="screen">
+  <arg name="respawn" default="false" />
+
+  <node pkg="inertiallabs_ins" type="il_ins" name="INS" output="screen" respawn="$(arg respawn)">
    <param name="serial_port" type="string" value="/dev/ttyIMU" />
    <param name="serial_baud" type="int" value="57600" />
    <!-- setting the output type and frequency -->

@@ -11,9 +11,12 @@ std_msgs
 dynamic_reconfigure
 actionlib_msgs
 inertiallabs_msgs
+connectivity_client
 )
 
-include_directories(${catkin_INCLUDE_DIRS})
+include_directories(${catkin_INCLUDE_DIRS}
+                    ${connectivity_client_INCLUDE_DIRS}
+)
 
 find_package(OpenCV)
 
@@ -49,4 +52,4 @@ if(WIN32)
 else()
 	target_link_libraries(il_ins ${catkin_LIBRARIES} pthread )
 endif()
-
+target_link_libraries(il_ins ${connectivity_client_LIBRARIES})
