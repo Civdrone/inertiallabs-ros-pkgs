@@ -240,14 +240,19 @@ int main(int argc, char** argv)
 
 	ROS_INFO("connecting to INS at URL %s, ins_output_format %d, publish_rate %d", port.c_str(), ins_output_type, publish_rate);
 
-	auto il_err = ins.connect(port.c_str());
-	if (il_err != 0)
+	diagnostic_msgs::DiagnosticStatus diagnostic_message;
+	while (ins.connect(port.c_str()) != 0)
 	{
-		ROS_FATAL("Could not connect to the INS on this URL %s\n",
-				  port.c_str()
-		);
-		exit(EXIT_FAILURE);
+		diagnostic_message.level = diagnostic_msgs::DiagnosticStatus::ERROR;
+		diagnostic_message.message = "disconnected";
+		connectivity_client.SetMessage(diagnostic_message);
+		int wait_milli(1000);
+		ROS_ERROR("Could not connect to the INS on this URL %s. Retry in %d(Sec).\n", port.c_str(), int(wait_milli/1000));
+		std::this_thread::sleep_for(std::chrono::milliseconds(wait_milli));
 	}
+	diagnostic_message.level = diagnostic_msgs::DiagnosticStatus::OK;
+	diagnostic_message.message = "connected";
+	connectivity_client.SetMessage(diagnostic_message);
 
 	if (ins.isStarted())
 	{
@@ -258,7 +263,7 @@ int main(int argc, char** argv)
 	std::string SN(reinterpret_cast<const char *>(devInfo.IDN), 8);
 	ROS_INFO("Found INS S/N %s\n", SN.c_str());
 	context.imu_frame_id = SN;
-	il_err = ins.start(ins_output_type);
+	auto il_err = ins.start(ins_output_type);
 	if (il_err != 0)
 	{
 		ROS_FATAL("Could not start the INS: %i\n", il_err);
