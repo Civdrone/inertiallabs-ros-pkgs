@@ -15,6 +15,7 @@
 #include <inertiallabs_msgs/gps_data.h>
 #include <inertiallabs_msgs/gnss_data.h>
 #include <inertiallabs_msgs/marine_data.h>
+#include <connectivity_client/connectivity_client.hpp>
 
 //Publishers
 
@@ -215,6 +216,8 @@ int main(int argc, char** argv)
 
 
 	//command line varibales
+    civros::connectivity::ConnectivityClient connectivity_client(&np);
+    connectivity_client.InitializeConnectivity();
 
 	
 	np.param<std::string>("serial_port", serial_port, "/dev/ttyUSB0");

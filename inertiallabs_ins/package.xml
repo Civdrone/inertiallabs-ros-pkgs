@@ -21,6 +21,7 @@
   <build_depend>actionlib_msgs</build_depend>
   <build_depend>dynamic_reconfigure</build_depend>
   <build_depend>inertiallabs_msgs</build_depend>
+  <build_depend>connectivity_client</build_depend>
 
   <run_depend>roscpp</run_depend>
   <run_depend>rospy</run_depend>
@@ -32,6 +33,7 @@
   <run_depend>visualization_msgs</run_depend>
   <run_depend>tf</run_depend>
   <run_depend>sensor_msgs</run_depend>
+  <run_depend>connectivity_client</run_depend>
 
 
   <export>
