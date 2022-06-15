@@ -20,7 +20,7 @@ namespace IL {
 		const uint8_t IL_OPVT_GNSSext = 0x67;
 		const uint8_t SPAN_rawIMU = 0x68;
 		const uint8_t IL_UDD = 0x95;
-	};
+	}
 
 	struct INSDataStruct
 	{

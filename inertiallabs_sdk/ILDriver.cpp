@@ -221,7 +221,6 @@ namespace IL {
 		int checksum = 0;
 		char buf[65536];
 		UDDParser parser;
-		uint16_t len = 0;
 		std::string NMEA;
 		std::string RawIMU;
 		uint32_t RawIMUcounter;

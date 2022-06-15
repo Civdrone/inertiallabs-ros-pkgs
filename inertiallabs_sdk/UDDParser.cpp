@@ -111,7 +111,7 @@ namespace IL {
 
 	void UDDParser::writeHeader()
 	{
-		for (int i = 0; i < dataSet.size(); ++i)
+		for (size_t i = 0; i < dataSet.size(); ++i)
 		{
 			switch (static_cast<uint8_t>(dataSet[i]))
 			{
@@ -352,15 +352,15 @@ namespace IL {
 
 	void UDDParser::writeTxtAndData()
 	{
-		uint8_t IMRdataPresent = 0;
-		bool GPSTimePresent = false;
-		double UTCTOD = 0; 			// UTC Time of Day
-		uint32_t UTCDOW = 0; 		// Day of Week computed from UTC date;
-		int UTCMonth;
-		int UTCYear;
-		static int startOfMonthDaysToAdd[] = { 0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4 }; 	// To compute day of week
-		double val;
-		for (int i = 0; i < dataSet.size(); ++i)
+		// uint8_t IMRdataPresent = 0;
+		// bool GPSTimePresent = false;
+		// double UTCTOD = 0; 			// UTC Time of Day
+		// uint32_t UTCDOW = 0; 		// Day of Week computed from UTC date;
+		// int UTCMonth;
+		// int UTCYear;
+		// static int startOfMonthDaysToAdd[] = { 0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4 }; 	// To compute day of week
+		// double val;
+		for (size_t i = 0; i < dataSet.size(); ++i)
 		{
 			switch (static_cast<uint8_t>(dataSet[i]))
 			{

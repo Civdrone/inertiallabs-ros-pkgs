@@ -30,7 +30,7 @@ namespace IL {
 		double SV;
 		uint8_t code;
 		uint16_t payloadLen;
-		int payloadInd;
+		uint16_t payloadInd;
 		uint8_t payloadBuf[65530];
 		std::string dataSet;
 		std::string oldDataSet;
@@ -54,7 +54,7 @@ namespace IL {
 
 		template<typename T>
 		void readVal(T& val) {
-			parseError = (payloadLen - payloadInd < sizeof(val));
+			parseError = (payloadLen < payloadInd || static_cast<uint16_t>(payloadLen - payloadInd) < sizeof(val));
 			if (!parseError)
 			{
 				memcpy(&val, &payloadBuf[payloadInd], sizeof(val));
@@ -66,7 +66,7 @@ namespace IL {
 		double readScaled(double scale, bool tab = false, int base = 10)
 		{
 			T val;
-			parseError = (payloadLen - payloadInd < sizeof(val));
+			parseError = (payloadLen < payloadInd || static_cast<uint16_t>(payloadLen - payloadInd) < sizeof(val));
 			if (!parseError)
 			{
 				memcpy(&val, &payloadBuf[payloadInd], sizeof(val));
