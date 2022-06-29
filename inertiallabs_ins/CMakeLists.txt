@@ -78,3 +78,5 @@ target_link_libraries(il_ins ${connectivity_client2_LIBRARIES})
 
 install(TARGETS il_ins
     DESTINATION lib/${PROJECT_NAME})
+
+ament_package()
