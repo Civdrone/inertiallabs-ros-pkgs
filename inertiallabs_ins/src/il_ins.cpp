@@ -1,12 +1,13 @@
-#include<iostream>
+#include <iostream>
 #include <mutex>
-#include<unistd.h>
-#include<math.h>
-#include<stdlib.h>
+#include <unistd.h>
+#include <math.h>
+#include <stdlib.h>
 
 #include <rclcpp/rclcpp.hpp>
+#include <sensor_msgs/msg/imu.hpp>
 
-//Inertial Labs source header
+// Inertial Labs source header
 #include "ILDriver.h"
 
 //adding message type headers
@@ -18,15 +19,19 @@
 #include <connectivity_client2/connectivity_client2.hpp>
 #include <civros_utils/parameters.hpp>
 
-//Publishers
+#define G 9.80665
+// Publishers
 
-struct Context {
+struct Context 
+{
 	std::shared_ptr<rclcpp::Node> node_;
 	rclcpp::Publisher<inertiallabs_msgs::msg::SensorData>::SharedPtr _publisher_0;
 	rclcpp::Publisher<inertiallabs_msgs::msg::INSData>::SharedPtr _publisher_1;
 	rclcpp::Publisher<inertiallabs_msgs::msg::GPSData>::SharedPtr _publisher_2;
 	rclcpp::Publisher<inertiallabs_msgs::msg::GNSSData>::SharedPtr _publisher_3;
 	rclcpp::Publisher<inertiallabs_msgs::msg::MarineData>::SharedPtr _publisher_4;
+	rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr _publisher_5;
+
 	std::string imu_frame_id;
 };
 
@@ -37,7 +42,7 @@ inertiallabs_msgs::msg::GPSData g_msg_gps_data;
 inertiallabs_msgs::msg::GNSSData g_msg_gnss_data;
 inertiallabs_msgs::msg::MarineData g_msg_marine_data;
 
-void publish_data(Context* context)
+void publish_data(Context *context)
 {
 	rclcpp::Time timestamp = context->node_->now();
 
@@ -46,6 +51,7 @@ void publish_data(Context* context)
 	inertiallabs_msgs::msg::GPSData msg_gps_data;
 	inertiallabs_msgs::msg::GNSSData msg_gnss_data;
 	inertiallabs_msgs::msg::MarineData msg_marine_data;
+	sensor_msgs::msg::Imu msg_standard_imu_data;
 
 	// Lock, copy and unlock
 	{
@@ -73,6 +79,47 @@ void publish_data(Context* context)
 		if (context->_publisher_4->get_subscription_count() > 0)
 		{
 			msg_marine_data = g_msg_marine_data;
+		}
+
+		if (context->_publisher_5->get_subscription_count() > 0)
+		{
+			msg_standard_imu_data.header = g_msg_ins_data.header;
+			msg_standard_imu_data.header.frame_id = "base_link";
+			msg_standard_imu_data.orientation = g_msg_ins_data.ori_quat;
+			msg_standard_imu_data.angular_velocity = g_msg_sensor_data.gyro;
+			msg_standard_imu_data.linear_acceleration.x = g_msg_sensor_data.accel.x * G;
+			msg_standard_imu_data.linear_acceleration.y = g_msg_sensor_data.accel.y * G;
+			msg_standard_imu_data.linear_acceleration.z = g_msg_sensor_data.accel.z * G;
+
+			msg_standard_imu_data.orientation_covariance[0] = 8.512e-6;
+			msg_standard_imu_data.orientation_covariance[1] = 0.0;
+			msg_standard_imu_data.orientation_covariance[2] = 0.0;
+			msg_standard_imu_data.orientation_covariance[3] = 0.0;
+			msg_standard_imu_data.orientation_covariance[4] = 1.0263e-8;
+			msg_standard_imu_data.orientation_covariance[5] = 0.0;
+			msg_standard_imu_data.orientation_covariance[6] = 0.0;
+			msg_standard_imu_data.orientation_covariance[7] = 0.0;
+			msg_standard_imu_data.orientation_covariance[8] = 1.89219e-8;
+
+			msg_standard_imu_data.angular_velocity_covariance[0] = 0.0007009;
+			msg_standard_imu_data.angular_velocity_covariance[1] = 0.0;
+			msg_standard_imu_data.angular_velocity_covariance[2] = 0.0;
+			msg_standard_imu_data.angular_velocity_covariance[3] = 0.0;
+			msg_standard_imu_data.angular_velocity_covariance[4] = 0.00186523;
+			msg_standard_imu_data.angular_velocity_covariance[5] = 0.0;
+			msg_standard_imu_data.angular_velocity_covariance[6] = 0.0;
+			msg_standard_imu_data.angular_velocity_covariance[7] = 0.0;
+			msg_standard_imu_data.angular_velocity_covariance[8] = 0.00092446;
+
+			msg_standard_imu_data.linear_acceleration_covariance[0] = 1.1499e-6;
+			msg_standard_imu_data.linear_acceleration_covariance[1] = 0.0;
+			msg_standard_imu_data.linear_acceleration_covariance[2] = 0.0;
+			msg_standard_imu_data.linear_acceleration_covariance[3] = 0.0;
+			msg_standard_imu_data.linear_acceleration_covariance[4] = 1.0626e-6;
+			msg_standard_imu_data.linear_acceleration_covariance[5] = 0.0;
+			msg_standard_imu_data.linear_acceleration_covariance[6] = 0.0;
+			msg_standard_imu_data.linear_acceleration_covariance[7] = 0.0;
+			msg_standard_imu_data.linear_acceleration_covariance[8] = 9.4396e-6;
 		}
 	}
 
@@ -106,11 +153,18 @@ void publish_data(Context* context)
 		msg_marine_data.header.stamp = timestamp;
 		context->_publisher_4->publish(msg_marine_data);
 	}
+
+	if (context->_publisher_5->get_subscription_count() > 0)
+	{
+		msg_standard_imu_data.header.stamp = timestamp;
+		// msg_marine_data.header.stamp = timestamp;
+		context->_publisher_5->publish(msg_standard_imu_data);
+	}
 }
 
-void save_data(IL::INSDataStruct *data, void* contextPtr)
+void save_data(IL::INSDataStruct *data, void *contextPtr)
 {
-	Context * context = reinterpret_cast<Context*>(contextPtr);
+	Context *context = reinterpret_cast<Context *>(contextPtr);
 
 	std::lock_guard<std::mutex> lock(data_mutex);
 	
@@ -198,7 +252,7 @@ void save_data(IL::INSDataStruct *data, void* contextPtr)
 	}
 }
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     rclcpp::init(argc, argv);
 
@@ -218,11 +272,12 @@ int main(int argc, char** argv)
 	std::string serial_port;
 	int publish_rate, serial_baud;
 
+	// command line varibales
 
 	//command line varibales
 	using namespace civros::civros_utils;
 	serial_port = Parameters::declare_param(node, "serial_port", std::string("/dev/ttyUSB0"));
-	serial_baud = Parameters::declare_param(node, "serial_baud", 2000000);
+	serial_baud = Parameters::declare_param(node, "serial_baud", 115200);
 	publish_rate = Parameters::declare_param(node, "publish_rate", 100);
 	
 	rclcpp::Rate rate(publish_rate); // 100 hz
@@ -239,6 +294,7 @@ int main(int argc, char** argv)
 	context._publisher_2 = node->create_publisher<inertiallabs_msgs::msg::GPSData>("/Inertial_Labs/gps_data", 1);
 	context._publisher_3 = node->create_publisher<inertiallabs_msgs::msg::GNSSData>("/Inertial_Labs/gnss_data", 1);
 	context._publisher_4 = node->create_publisher<inertiallabs_msgs::msg::MarineData>("/Inertial_Labs/marine_data", 1);
+	context._publisher_5 = node->create_publisher<sensor_msgs::msg::Imu>("/Inertial_Labs/standard_imu_data", 1);
 
 
 	RCLCPP_INFO(node->get_logger(), "connecting to INS at URL %s, ins_output_format %d, publish_rate %d", port.c_str(), ins_output_type, publish_rate);

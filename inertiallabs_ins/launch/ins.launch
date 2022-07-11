@@ -3,11 +3,11 @@
 
   <node pkg="inertiallabs_ins" type="il_ins" name="INS" output="screen" respawn="$(arg respawn)">
    <param name="serial_port" type="string" value="/dev/ttyIMU" />
-   <param name="serial_baud" type="int" value="57600" />
+   <param name="serial_baud" type="int" value="115200" />
    <!-- setting the output type and frequency -->
    <!-- TODO:- set the command line input -->
    <param name="output_type" type="int" value="149"/>
    <!--setting the publishing rate-->
-   <param name="publish_rate" type="int" value="2"/>
+   <param name="publish_rate" type="int" value="100"/>
   </node>
 </launch>
